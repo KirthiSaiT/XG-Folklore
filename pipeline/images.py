@@ -112,38 +112,27 @@ def _deapi_generate(
         raise RuntimeError(f"DeAPI timed out after {max_polls} polls for {request_id}")
 
 
-def _hf_generate(prompt: str, *, api_key: str, max_retries: int = 5) -> bytes:
-    """Generate image via HuggingFace Inference API (FLUX.1-schnell)."""
-    model = os.environ.get("HF_MODEL", "black-forest-labs/FLUX.1-schnell")
-    url = f"https://api-inference.huggingface.co/models/{model}"
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-        "Accept": "image/png",
-    }
+def _pollinations_generate(prompt: str, *, width: int = 768, height: int = 768, max_retries: int = 4) -> bytes:
+    """Generate image via Pollinations.ai — free, no API key needed."""
+    import urllib.parse
+    encoded = urllib.parse.quote(prompt)
+    seed = random.randint(1, 999999)
+    url = f"https://image.pollinations.ai/prompt/{encoded}?width={width}&height={height}&model=flux&seed={seed}&nologo=true"
 
-    with httpx.Client(timeout=120.0) as client:
+    with httpx.Client(timeout=90.0, follow_redirects=True) as client:
         for attempt in range(max_retries):
-            resp = client.post(url, json={"inputs": prompt}, headers=headers)
+            try:
+                resp = client.get(url)
+                if resp.status_code == 200 and resp.content:
+                    print(f"      Pollinations done (attempt {attempt+1})")
+                    return resp.content
+                print(f"      Pollinations status {resp.status_code}, retrying…")
+                time.sleep(10)
+            except Exception as e:
+                print(f"      Pollinations error: {e}, retrying…")
+                time.sleep(10)
 
-            if resp.status_code == 503:
-                try:
-                    wait = resp.json().get("estimated_time", 20)
-                except Exception:
-                    wait = 20
-                print(f"      HF model loading, waiting {int(wait)+5}s (attempt {attempt+1})…")
-                time.sleep(int(wait) + 5)
-                continue
-
-            if resp.status_code == 429:
-                print(f"      HF rate limited, waiting 20s (attempt {attempt+1})…")
-                time.sleep(20)
-                continue
-
-            resp.raise_for_status()
-            return resp.content
-
-        raise RuntimeError(f"HuggingFace image generation failed after {max_retries} retries")
+    raise RuntimeError(f"Pollinations image generation failed after {max_retries} retries")
 
 
 def save_scene_image(
@@ -180,12 +169,10 @@ def save_scene_image(
         except Exception as e:
             return "fail", str(e)
 
-    if hf_key:
-        try:
-            img_bytes = _hf_generate(prompt, api_key=hf_key)
-            out_path.write_bytes(img_bytes)
-            return "ok", "huggingface"
-        except Exception as e:
-            return "fail", str(e)
-
-    return "fail", "No image API key set — add DEAPI_TOKEN or HF_TOKEN to .env"
+    # Pollinations fallback — free, no key needed
+    try:
+        img_bytes = _pollinations_generate(prompt, width=width, height=height)
+        out_path.write_bytes(img_bytes)
+        return "ok", "pollinations"
+    except Exception as e:
+        return "fail", str(e)
