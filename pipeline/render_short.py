@@ -108,20 +108,44 @@ def render_vertical_short(
 
     force_style = (
         f"FontName={rendered_font_name},"
-        f"FontSize=18,"
+        f"FontSize=22,"
         f"PrimaryColour=&H00FFFFFF,"
         f"OutlineColour=&H00000000,"
-        f"BackColour=&H96000000,"
-        f"BorderStyle=4,Outline=1,Bold=1,"
-        f"Shadow=0,Alignment=2,"
-        f"MarginV=15,MarginL=20,MarginR=20"
+        f"BackColour=&HAA000000,"
+        f"BorderStyle=4,Outline=2,Bold=1,"
+        f"Shadow=1,Alignment=2,"
+        f"MarginV=40,MarginL=20,MarginR=20"
     )
 
-    # ── 4. Build xfade chain + subtitles ─────────────────────────────
+    # ── 4. Generate background music ─────────────────────────────────
+    music_path = tmp / "music_bg.mp3"
+    music_duration = total_duration + 3
+    music_cmd = [
+        "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
+        "-f", "lavfi",
+        "-i", (
+            f"aevalsrc="
+            f"'0.12*sin(2*PI*55*t)+0.08*sin(2*PI*82.5*t)+0.06*sin(2*PI*110*t)"
+            f"+0.04*sin(2*PI*55*t)*sin(2*PI*0.3*t)+0.03*sin(2*PI*165*t)"
+            f"|"
+            f"0.12*sin(2*PI*55*t+0.05)+0.08*sin(2*PI*82.5*t+0.05)+0.06*sin(2*PI*110*t+0.05)"
+            f"+0.04*sin(2*PI*55*t+0.05)*sin(2*PI*0.3*t)+0.03*sin(2*PI*165*t+0.05)"
+            f":c=stereo:s=44100'"
+        ),
+        "-af", f"volume=0.25,afade=t=in:ss=0:d=2,afade=t=out:st={music_duration-3:.1f}:d=3",
+        "-t", str(music_duration),
+        str(music_path),
+    ]
+    subprocess.run(music_cmd, check=True)
+
+    # ── 5. Build xfade chain + subtitles ─────────────────────────────
     inputs: list[str] = []
     for i in range(n):
         inputs += ["-i", f"clip_{i + 1:02d}.mp4"]
     inputs += ["-i", str(audio_path.resolve())]
+    inputs += ["-i", str(music_path.resolve())]
+    audio_idx = n
+    music_idx = n + 1
 
     filter_parts: list[str] = []
 
@@ -146,13 +170,17 @@ def render_vertical_short(
             f"force_style='{force_style}'[final]"
         )
 
+    filter_parts.append(
+        f"[{audio_idx}:a][{music_idx}:a]amix=inputs=2:duration=first:weights=1.8 0.55[audio_mix]"
+    )
+
     fc = ";\n".join(filter_parts)
 
     cmd = [
         "ffmpeg", "-y", "-hide_banner", "-loglevel", "warning",
         *inputs,
         "-filter_complex", fc,
-        "-map", "[final]", "-map", f"{n}:a",
+        "-map", "[final]", "-map", "[audio_mix]",
         "-c:v", "libx264", "-preset", "fast", "-crf", "23",
         "-pix_fmt", "yuv420p",
         "-c:a", "aac", "-b:a", "192k",

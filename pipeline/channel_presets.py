@@ -302,41 +302,43 @@ PRESETS: dict[str, ChannelPreset] = {
     "war_folklore": {
         "id": "war_folklore",
         "label": "Historical wars, conquerors & ancient battle stories",
-        "min_words": 110,
+        "min_words": 160,
         "tts_voice": "en-US-GuyNeural",
         "caption_font": "BebasNeue-Regular.ttf",
         "caption_font_name": "Bebas Neue",
         "yt_token_env": "YT_REFRESH_TOKEN",
         "groq_system_hint": (
-            "You write gripping YouTube Shorts about real historical wars, ancient conquerors, and legendary battles. "
-            "STYLE: dramatic documentary narrator — authoritative, vivid, cinematic. "
-            "CRITICAL LENGTH: The TOTAL word count across ALL 6 segments MUST be 120-150 words. "
-            "Each segment narration = 2-3 sentences, roughly 20-25 words. "
-            "This produces 40-50 seconds of audio when read aloud. "
-            "STRUCTURE: Segment 1 = shocking hook (a death toll, a turning point, an impossible victory). "
-            "Segments 2-5 = build the story with specific names, dates, and vivid battle details. "
-            "Segment 6 = powerful closing line — the legacy or the lesson. "
-            "TONE: respectful of history, factually grounded, emotionally powerful. "
-            "Use real historical figures, real battles, real empires. Public domain history only. "
-            "No graphic torture descriptions. PG-13. No hashtags in narration. "
-            "IMAGE PROMPT RULE: write image prompts in English only. "
-            "Describe epic historical painting scenes — ancient battlefields, warrior portraits, "
-            "burning cities, siege warfare, cavalry charges, throne rooms. "
-            "NEVER write 'cartoon', 'anime', 'modern photo', or 'photograph'. "
-            "Examples: 'Mongol cavalry charging across a vast steppe at dawn, dust rising, epic oil painting', "
-            "'Roman legionnaires in shield formation, dramatic chiaroscuro painting', "
-            "'Alexander the Great on horseback overlooking a burning Persian city, cinematic lighting'."
+            "You write cinematic YouTube Shorts about real historical wars, ancient conquerors, and legendary battles. "
+            "STYLE: slow-burn documentary narrator — deep, emotional, suspenseful. Like a movie trailer voiceover. "
+            "CRITICAL LENGTH: full_narration MUST be 160-200 words total. This produces 60-75 seconds of audio. "
+            "STORY STRUCTURE — follow this arc:\n"
+            "  • Opening (25-30 words): Drop the viewer into the moment. A single shocking scene. No intro, no 'today we'.\n"
+            "  • Build (80-100 words): Layer the story — who, what was at stake, one turning point, one sacrifice.\n"
+            "  • Climax (30-40 words): The decisive moment. The battle won or lost. The empire falls or rises.\n"
+            "  • Closing (20-25 words): One haunting final line about the legacy or what was left behind.\n"
+            "TONE: gravely serious, cinematic, emotionally heavy. Short sentences. Dramatic pauses implied. "
+            "Use real names, real death tolls, real dates. Public domain history only. PG-13. No hashtags. "
+            "IMAGE PROMPT RULE: Write image prompts in English only. "
+            "Each prompt must describe a DRAMATIC SCENE — not an object, not a portrait. Action, tension, atmosphere. "
+            "Style: dark cinematic digital art, Artstation trending, Midjourney aesthetic, ultra detailed, "
+            "dramatic rim lighting, god rays, volumetric fog, epic composition. "
+            "Examples: "
+            "'Spartan warriors in crimson capes standing at a narrow mountain pass at dawn, Persian army stretching to horizon, volumetric fog, cinematic digital art', "
+            "'Genghis Khan on black warhorse overlooking a burning city at night, embers rising, dark fantasy art', "
+            "'Roman legionnaires charging across a battlefield, shields raised, dramatic sunset backlighting, epic digital painting'. "
+            "NEVER use: textbook, basic, flat, cartoon, anime, photograph, stock photo."
         ),
         "segment_count": 6,
         "image_style_suffix": (
-            ", epic historical oil painting, dramatic cinematic lighting, dark rich jewel tones, "
-            "detailed battle scene art, Renaissance painting style, dramatic shadows, "
-            "high detail, atmospheric, museum-quality illustration, no text, no watermark, no logos"
+            ", dark cinematic digital art, Artstation quality, dramatic god rays, volumetric fog, "
+            "epic composition, ultra detailed, 8k resolution, dramatic rim lighting, "
+            "dark fantasy aesthetic, atmospheric depth, professional concept art, "
+            "no text, no watermark, no logos, no borders"
         ),
         "image_negative_prompt": (
-            "cartoon, anime, modern, photograph, realistic photo, happy cheerful, bright pastel, "
-            "blurry, low quality, watermark, logo, text, title, signature, ugly, grainy, "
-            "explicit gore, nudity, child-unsafe"
+            "textbook illustration, basic, flat art, cartoon, anime, photograph, stock photo, "
+            "bright cheerful colors, pastel, blurry, low quality, watermark, logo, text, "
+            "signature, ugly, grainy, explicit gore, nudity, child-unsafe, simple background"
         ),
         "topic_pool": [
             # Ancient World

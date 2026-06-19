@@ -19,6 +19,7 @@ env:
   YT_CLIENT_SECRET_VALUE: ${{ secrets.YT_CLIENT_SECRET_VALUE }}
   YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
   EDGE_TTS_VOICE: "en-US-GuyNeural"
+  EDGE_TTS_RATE: "-15%"
 
 jobs:
   generate-and-upload:

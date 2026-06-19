@@ -30,11 +30,11 @@ def _ffprobe_duration(path: Path) -> float:
 
 
 async def _synthesize_with_timing(
-    text: str, out_path: Path, voice: str,
+    text: str, out_path: Path, voice: str, rate: str = "-15%",
 ) -> list[SentenceTiming]:
     import edge_tts
 
-    communicate = edge_tts.Communicate(text, voice)
+    communicate = edge_tts.Communicate(text, voice, rate=rate)
     sentences: list[SentenceTiming] = []
 
     with open(out_path, "wb") as audio_file:
@@ -58,8 +58,9 @@ def synthesize_full(
 ) -> tuple[float, list[SentenceTiming]]:
     """TTS the full narration. Returns (duration_seconds, sentence_timings)."""
     voice = voice or os.environ.get("EDGE_TTS_VOICE", VOICE)
+    rate = os.environ.get("EDGE_TTS_RATE", "-15%")
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    sentences = asyncio.run(_synthesize_with_timing(text, out_path, voice))
+    sentences = asyncio.run(_synthesize_with_timing(text, out_path, voice, rate=rate))
     dur = _ffprobe_duration(out_path)
     return dur, sentences
