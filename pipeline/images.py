@@ -175,10 +175,22 @@ def save_scene_image(
         except Exception as e:
             return "fail", str(e)
 
-    # Pollinations fallback — free, no key needed
+    # Pollinations — free, no key needed
     try:
         img_bytes = _pollinations_generate(prompt, width=width, height=height)
         out_path.write_bytes(img_bytes)
         return "ok", "pollinations"
+    except Exception:
+        pass
+
+    # Last resort — random photo from picsum.photos (always available)
+    try:
+        with httpx.Client(timeout=30.0, follow_redirects=True) as client:
+            resp = client.get(f"https://picsum.photos/{width}/{height}")
+            if resp.status_code == 200 and resp.content:
+                out_path.write_bytes(resp.content)
+                return "ok", "picsum-fallback"
     except Exception as e:
-        return "fail", str(e)
+        return "fail", f"all image sources failed: {e}"
+
+    return "fail", "all image sources failed"
