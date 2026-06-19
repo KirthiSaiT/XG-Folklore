@@ -112,27 +112,33 @@ def _deapi_generate(
         raise RuntimeError(f"DeAPI timed out after {max_polls} polls for {request_id}")
 
 
-def _pollinations_generate(prompt: str, *, width: int = 768, height: int = 768, max_retries: int = 4) -> bytes:
-    """Generate image via Pollinations.ai — free, no API key needed."""
+def _pollinations_generate(prompt: str, *, width: int = 768, height: int = 768) -> bytes:
+    """Generate image via Pollinations.ai — free, no API key needed.
+
+    Tries flux model first, falls back to turbo on repeated failures.
+    """
     import urllib.parse
     encoded = urllib.parse.quote(prompt)
-    seed = random.randint(1, 999999)
-    url = f"https://image.pollinations.ai/prompt/{encoded}?width={width}&height={height}&model=flux&seed={seed}&nologo=true"
+    models = ["flux", "turbo", "flux", "turbo", "flux", "turbo", "flux", "turbo"]
 
-    with httpx.Client(timeout=90.0, follow_redirects=True) as client:
-        for attempt in range(max_retries):
+    with httpx.Client(timeout=120.0, follow_redirects=True) as client:
+        for attempt, model in enumerate(models):
+            seed = random.randint(1, 999999)
+            url = (
+                f"https://image.pollinations.ai/prompt/{encoded}"
+                f"?width={width}&height={height}&model={model}&seed={seed}&nologo=true"
+            )
             try:
                 resp = client.get(url)
-                if resp.status_code == 200 and resp.content:
-                    print(f"      Pollinations done (attempt {attempt+1})")
+                if resp.status_code == 200 and len(resp.content) > 1000:
+                    print(f"      Pollinations done (attempt {attempt+1}, model={model})")
                     return resp.content
-                print(f"      Pollinations status {resp.status_code}, retrying…")
-                time.sleep(10)
+                print(f"      Pollinations {resp.status_code} (attempt {attempt+1}, model={model}), retrying in 15s…")
             except Exception as e:
-                print(f"      Pollinations error: {e}, retrying…")
-                time.sleep(10)
+                print(f"      Pollinations error: {e} (attempt {attempt+1}), retrying in 15s…")
+            time.sleep(15)
 
-    raise RuntimeError(f"Pollinations image generation failed after {max_retries} retries")
+    raise RuntimeError("Pollinations image generation failed after 8 attempts")
 
 
 def save_scene_image(
