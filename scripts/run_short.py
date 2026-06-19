@@ -43,7 +43,7 @@ sys.path.insert(0, str(REPO_ROOT))
 load_dotenv(REPO_ROOT / ".env")
 load_dotenv(REPO_ROOT / "scripts" / ".env")
 
-from pipeline.captions import build_srt
+from pipeline.captions import build_srt, build_word_srt
 from pipeline.channel_presets import get_preset, list_channel_ids
 from pipeline.edge_tts_synth import synthesize_full
 from pipeline.groq_script import generate_short_pack
@@ -73,16 +73,19 @@ def _render_and_upload(
 
     audio_path = run_dir / f"voiceover{suffix}.mp3"
     print(f"② Edge TTS ({voice or 'default'})…")
-    total_dur, sentence_timings = synthesize_full(narration, audio_path, voice=voice)
-    print(f"   Audio: {total_dur:.1f}s ({len(sentence_timings)} sentences tracked)")
-    if total_dur > 55:
-        print(f"   ⚠ Audio is {total_dur:.0f}s — target is 30-45s")
-    if total_dur < 25:
+    total_dur, sentence_timings, word_timings = synthesize_full(narration, audio_path, voice=voice)
+    print(f"   Audio: {total_dur:.1f}s ({len(sentence_timings)} sentences, {len(word_timings)} words tracked)")
+    if total_dur > 85:
+        print(f"   ⚠ Audio is {total_dur:.0f}s — target is 55-75s")
+    if total_dur < 40:
         print(f"   ⚠ Audio is {total_dur:.0f}s — might be too short")
 
     srt_path = run_dir / f"captions{suffix}.srt"
     print("④ Captions…")
-    build_srt(sentence_timings, srt_path, total_dur)
+    if word_timings:
+        build_word_srt(word_timings, srt_path)
+    else:
+        build_srt(sentence_timings, srt_path, total_dur)
 
     video_path = run_dir / f"short{suffix}.mp4"
     print(f"⑤ FFmpeg: rendering 1080×1920 (font={font_name})…")

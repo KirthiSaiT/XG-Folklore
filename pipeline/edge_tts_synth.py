@@ -16,6 +16,12 @@ class SentenceTiming(TypedDict):
     duration_ms: int
 
 
+class WordTiming(TypedDict):
+    text: str
+    offset_ms: int
+    duration_ms: int
+
+
 def _ffprobe_duration(path: Path) -> float:
     out = subprocess.check_output(
         [
@@ -31,11 +37,12 @@ def _ffprobe_duration(path: Path) -> float:
 
 async def _synthesize_with_timing(
     text: str, out_path: Path, voice: str, rate: str = "-15%",
-) -> list[SentenceTiming]:
+) -> tuple[list[SentenceTiming], list[WordTiming]]:
     import edge_tts
 
     communicate = edge_tts.Communicate(text, voice, rate=rate)
     sentences: list[SentenceTiming] = []
+    words: list[WordTiming] = []
 
     with open(out_path, "wb") as audio_file:
         async for chunk in communicate.stream():
@@ -49,18 +56,26 @@ async def _synthesize_with_timing(
                         duration_ms=int(chunk["duration"]) // 10_000,
                     )
                 )
+            elif chunk["type"] == "WordBoundary":
+                words.append(
+                    WordTiming(
+                        text=chunk["text"],
+                        offset_ms=int(chunk["offset"]) // 10_000,
+                        duration_ms=int(chunk["duration"]) // 10_000,
+                    )
+                )
 
-    return sentences
+    return sentences, words
 
 
 def synthesize_full(
     text: str, out_path: Path, voice: str | None = None,
-) -> tuple[float, list[SentenceTiming]]:
-    """TTS the full narration. Returns (duration_seconds, sentence_timings)."""
+) -> tuple[float, list[SentenceTiming], list[WordTiming]]:
+    """TTS the full narration. Returns (duration_seconds, sentence_timings, word_timings)."""
     voice = voice or os.environ.get("EDGE_TTS_VOICE", VOICE)
     rate = os.environ.get("EDGE_TTS_RATE", "-15%")
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    sentences = asyncio.run(_synthesize_with_timing(text, out_path, voice, rate=rate))
+    sentences, words = asyncio.run(_synthesize_with_timing(text, out_path, voice, rate=rate))
     dur = _ffprobe_duration(out_path)
-    return dur, sentences
+    return dur, sentences, words

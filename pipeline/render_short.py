@@ -18,7 +18,7 @@ DEFAULT_FONT_NAME = "Creepster"
 
 FPS = 30
 FADE_DUR = 0.5
-ZOOM_AMOUNT = 0.08
+ZOOM_AMOUNT = 0.15
 
 
 def render_vertical_short(
@@ -149,10 +149,17 @@ def render_vertical_short(
 
     filter_parts: list[str] = []
 
+    cinematic_grade = (
+        "eq=contrast=1.3:saturation=0.72:brightness=-0.03,"
+        "colorchannelmixer=rr=0.94:rg=0:rb=0.04:gr=0:gg=0.96:gb=0.03:br=0.03:bg=0:bb=1.07,"
+        "vignette=angle=PI/4,"
+        "noise=alls=5:allf=t+u"
+    )
+
     if n == 1:
         filter_parts.append(
             f"[0:v]subtitles=captions.srt{fontsdir_arg}:"
-            f"force_style='{force_style}'[final]"
+            f"force_style='{force_style}'[subbed]"
         )
     else:
         prev = "[0:v]"
@@ -167,8 +174,10 @@ def render_vertical_short(
             prev = out
         filter_parts.append(
             f"{prev}subtitles=captions.srt{fontsdir_arg}:"
-            f"force_style='{force_style}'[final]"
+            f"force_style='{force_style}'[subbed]"
         )
+
+    filter_parts.append(f"[subbed]{cinematic_grade}[final]")
 
     filter_parts.append(
         f"[{audio_idx}:a][{music_idx}:a]amix=inputs=2:duration=first:weights=1.8 0.55[audio_mix]"

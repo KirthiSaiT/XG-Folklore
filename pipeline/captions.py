@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pipeline.edge_tts_synth import SentenceTiming
+    from pipeline.edge_tts_synth import SentenceTiming, WordTiming
 
 
 def _fmt(ms: int) -> str:
@@ -70,6 +70,39 @@ def build_srt(
         lines.append(str(i + 1))
         lines.append(f"{_fmt(start)} --> {_fmt(end)}")
         lines.append(text)
+        lines.append("")
+
+    out_path.write_text("\n".join(lines), encoding="utf-8")
+    return out_path
+
+
+def build_word_srt(
+    words: list[WordTiming],
+    out_path: Path,
+    *,
+    words_per_chunk: int = 3,
+) -> Path:
+    """Create word-by-word .srt from Edge TTS WordBoundary timestamps."""
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if not words:
+        out_path.write_text("", encoding="utf-8")
+        return out_path
+
+    chunks: list[tuple[int, int, str]] = []
+    for i in range(0, len(words), words_per_chunk):
+        group = words[i:i + words_per_chunk]
+        start_ms = group[0]["offset_ms"]
+        end_ms = group[-1]["offset_ms"] + group[-1]["duration_ms"]
+        text = " ".join(w["text"] for w in group)
+        chunks.append((start_ms, end_ms, text))
+
+    lines: list[str] = []
+    for i, (start, end, text) in enumerate(chunks):
+        lines.append(str(i + 1))
+        lines.append(f"{_fmt(start)} --> {_fmt(end)}")
+        lines.append(text.upper())
         lines.append("")
 
     out_path.write_text("\n".join(lines), encoding="utf-8")

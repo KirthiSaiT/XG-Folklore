@@ -18,8 +18,10 @@ env:
   YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
   YT_CLIENT_SECRET_VALUE: ${{ secrets.YT_CLIENT_SECRET_VALUE }}
   YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
-  EDGE_TTS_VOICE: "en-US-GuyNeural"
+  EDGE_TTS_VOICE: "en-US-ChristopherNeural"
   EDGE_TTS_RATE: "-15%"
+  DEAPI_IMAGE_WIDTH: "768"
+  DEAPI_IMAGE_HEIGHT: "1344"
 
 jobs:
   generate-and-upload:

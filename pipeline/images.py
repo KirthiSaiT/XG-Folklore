@@ -119,7 +119,7 @@ def _pollinations_generate(prompt: str, *, width: int = 768, height: int = 768) 
     """
     import urllib.parse
     encoded = urllib.parse.quote(prompt)
-    models = ["flux", "turbo", "flux", "turbo", "flux", "turbo", "flux", "turbo"]
+    models = ["flux-realism", "flux", "flux-realism", "flux", "turbo", "flux", "turbo", "flux"]
 
     with httpx.Client(timeout=120.0, follow_redirects=True) as client:
         for attempt, model in enumerate(models):
