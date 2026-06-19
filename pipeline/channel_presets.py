@@ -302,7 +302,7 @@ PRESETS: dict[str, ChannelPreset] = {
     "war_folklore": {
         "id": "war_folklore",
         "label": "Historical wars, conquerors & ancient battle stories",
-        "min_words": 160,
+        "min_words": 120,
         "tts_voice": "en-US-ChristopherNeural",
         "caption_font": "BebasNeue-Regular.ttf",
         "caption_font_name": "Bebas Neue",
