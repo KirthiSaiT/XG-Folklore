@@ -299,6 +299,123 @@ PRESETS: dict[str, ChannelPreset] = {
             "an accidental scientific breakthrough",
         ],
     },
+    "war_folklore": {
+        "id": "war_folklore",
+        "label": "Historical wars, conquerors & ancient battle stories",
+        "min_words": 110,
+        "tts_voice": "en-US-GuyNeural",
+        "caption_font": "BebasNeue-Regular.ttf",
+        "caption_font_name": "Bebas Neue",
+        "yt_token_env": "YT_REFRESH_TOKEN",
+        "groq_system_hint": (
+            "You write gripping YouTube Shorts about real historical wars, ancient conquerors, and legendary battles. "
+            "STYLE: dramatic documentary narrator — authoritative, vivid, cinematic. "
+            "CRITICAL LENGTH: The TOTAL word count across ALL 6 segments MUST be 120-150 words. "
+            "Each segment narration = 2-3 sentences, roughly 20-25 words. "
+            "This produces 40-50 seconds of audio when read aloud. "
+            "STRUCTURE: Segment 1 = shocking hook (a death toll, a turning point, an impossible victory). "
+            "Segments 2-5 = build the story with specific names, dates, and vivid battle details. "
+            "Segment 6 = powerful closing line — the legacy or the lesson. "
+            "TONE: respectful of history, factually grounded, emotionally powerful. "
+            "Use real historical figures, real battles, real empires. Public domain history only. "
+            "No graphic torture descriptions. PG-13. No hashtags in narration. "
+            "IMAGE PROMPT RULE: write image prompts in English only. "
+            "Describe epic historical painting scenes — ancient battlefields, warrior portraits, "
+            "burning cities, siege warfare, cavalry charges, throne rooms. "
+            "NEVER write 'cartoon', 'anime', 'modern photo', or 'photograph'. "
+            "Examples: 'Mongol cavalry charging across a vast steppe at dawn, dust rising, epic oil painting', "
+            "'Roman legionnaires in shield formation, dramatic chiaroscuro painting', "
+            "'Alexander the Great on horseback overlooking a burning Persian city, cinematic lighting'."
+        ),
+        "segment_count": 6,
+        "image_style_suffix": (
+            ", epic historical oil painting, dramatic cinematic lighting, dark rich jewel tones, "
+            "detailed battle scene art, Renaissance painting style, dramatic shadows, "
+            "high detail, atmospheric, museum-quality illustration, no text, no watermark, no logos"
+        ),
+        "image_negative_prompt": (
+            "cartoon, anime, modern, photograph, realistic photo, happy cheerful, bright pastel, "
+            "blurry, low quality, watermark, logo, text, title, signature, ugly, grainy, "
+            "explicit gore, nudity, child-unsafe"
+        ),
+        "topic_pool": [
+            # Ancient World
+            "the Battle of Thermopylae — 300 Spartans vs the Persian Empire",
+            "Alexander the Great's conquest of Persia in just 3 years",
+            "how Hannibal crossed the Alps with war elephants to attack Rome",
+            "the fall of Carthage — Rome's most brutal total war",
+            "how Julius Caesar conquered Gaul and changed history",
+            "the assassination of Julius Caesar on the Ides of March",
+            "the Battle of Marathon — Greece vs Persia",
+            "the Battle of Gaugamela — Alexander's greatest military victory",
+            "the Punic Wars — Rome vs Carthage for Mediterranean supremacy",
+            "the forgotten war that destroyed ancient Assyria overnight",
+            "the siege of Syracuse — Archimedes vs the Roman navy",
+            "the last days of the Spartan warrior culture",
+            "how Rome defeated the Greek empire at Corinth",
+            "Cleopatra's role in Rome's bloody civil war",
+            "the Persian Wars that defined Western civilization",
+            # Conquerors & Empires
+            "Genghis Khan — how one man conquered half the known world",
+            "the Mongol invasion that killed 40 million people",
+            "how Tamerlane built a pyramid of skulls in Delhi",
+            "Attila the Hun — the Scourge of God who terrified Rome",
+            "the rise of the Ottoman Empire from nomadic tribe to superpower",
+            "how Suleiman the Magnificent brought Europe to its knees",
+            "Napoleon's fatal winter campaign in Russia",
+            "Napoleon's 100 days — the impossible comeback that failed",
+            "how Cortés destroyed the Aztec Empire with 600 men",
+            "how Pizarro brought down the Inca Empire with 168 soldiers",
+            "Cortés burning his own ships — no retreat, no surrender",
+            "the Zulu War — the greatest African resistance against British Empire",
+            "the last stand of Constantinople — end of the Byzantine world",
+            "how the British East India Company conquered an entire subcontinent",
+            "the rise and fall of the Macedonian Empire after Alexander",
+            # Medieval Wars
+            "the Battle of Hastings — one October day that changed England forever",
+            "Joan of Arc — the teenage girl who saved France from England",
+            "the Hundred Years War between England and France",
+            "the Battle of Agincourt — England's impossible victory",
+            "the Knights Templar — their sudden and brutal destruction",
+            "the Siege of Jerusalem during the First Crusade",
+            "Richard the Lionheart vs Saladin — the greatest rivalry",
+            "the Viking raids that left Europe paralyzed with fear",
+            "the Mongol invasion of Europe — why it suddenly stopped",
+            "the Battle of Crécy — the birth of modern warfare",
+            "the Children's Crusade — history's most tragic war campaign",
+            "the Black Prince — England's undefeated warrior prince",
+            "how the Normans permanently changed English language and culture",
+            "the Siege of Antioch — Crusaders trapped inside a captured city",
+            "the fall of the Holy Roman Empire",
+            # Asian & Indian Wars
+            "the Samurai wars that unified Japan under one warlord",
+            "Oda Nobunaga — Japan's most ruthless and brilliant warlord",
+            "the Battle of Sekigahara — Japan's greatest civil war in one day",
+            "Kublai Khan's failed invasion of Japan — the divine wind",
+            "the Battle of Red Cliffs — China's greatest naval battle",
+            "the Maurya Empire and the battle that changed Ashoka forever",
+            "the Maratha warriors who broke the Mughal Empire",
+            "Shivaji Maharaj's mountain guerrilla warfare against Aurangzeb",
+            "the Battle of Panipat — three times it decided India's fate",
+            "Tipu Sultan's final stand against the British at Seringapatam",
+            "the Sikh Empire — the last great Indian power to fall",
+            "how the Chola Empire ruled the seas of ancient Asia",
+            "the forgotten wars of the Vijayanagara Empire",
+            "the Battle of Talikota — the day Indian history changed",
+            "Prithviraj Chauhan's last battle against Muhammad Ghori",
+            # Modern History
+            "the Battle of Stalingrad — the turning point of World War 2",
+            "D-Day — the largest military invasion in human history",
+            "the Battle of the Somme — 60,000 casualties in a single day",
+            "the Battle of Britain — RAF vs Luftwaffe for the skies of Europe",
+            "Lawrence of Arabia and the Arab revolt against the Ottomans",
+            "the Gallipoli disaster — Churchill's catastrophic campaign",
+            "Dunkirk — the miracle evacuation that saved 330,000 soldiers",
+            "the siege of Leningrad — 872 days of pure human endurance",
+            "the last Samurai rebellion — Japan's warrior class refuses to die",
+            "the forgotten soldiers of the Great War in the trenches",
+        ],
+    },
     "ghost_stories": {
         "id": "ghost_stories",
         "label": "Ghost / horror storytime Short",

@@ -1,0 +1,66 @@
+name: Daily War Folklore Short
+
+on:
+  schedule:
+    - cron: "0 10 * * *"   # 10am UTC — morning drop
+    - cron: "0 18 * * *"   # 6pm UTC  — evening drop
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: "Optional topic hint (leave blank for random)"
+        required: false
+        default: ""
+
+env:
+  GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+  HF_TOKEN: ${{ secrets.HF_TOKEN }}
+  HF_MODEL: "black-forest-labs/FLUX.1-schnell"
+  YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+  YT_CLIENT_SECRET_VALUE: ${{ secrets.YT_CLIENT_SECRET_VALUE }}
+  YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+  EDGE_TTS_VOICE: "en-US-GuyNeural"
+
+jobs:
+  generate-and-upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Install Python deps
+        run: pip install -r requirements.txt
+
+      - name: Restore history cache
+        uses: actions/cache/restore@v4
+        with:
+          path: output/history/
+          key: story-history-war_folklore-${{ github.run_id }}
+          restore-keys: |
+            story-history-war_folklore-
+
+      - name: Generate & upload Short
+        run: |
+          TOPIC="${{ github.event.inputs.topic || '' }}"
+          if [ -n "$TOPIC" ]; then
+            python scripts/run_short.py --channel war_folklore --topic "$TOPIC" --upload --privacy public
+          else
+            python scripts/run_short.py --channel war_folklore --upload --privacy public
+          fi
+
+      - name: Save history cache
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: output/history/
+          key: story-history-war_folklore-${{ github.run_id }}

@@ -112,6 +112,40 @@ def _deapi_generate(
         raise RuntimeError(f"DeAPI timed out after {max_polls} polls for {request_id}")
 
 
+def _hf_generate(prompt: str, *, api_key: str, max_retries: int = 5) -> bytes:
+    """Generate image via HuggingFace Inference API (FLUX.1-schnell)."""
+    model = os.environ.get("HF_MODEL", "black-forest-labs/FLUX.1-schnell")
+    url = f"https://api-inference.huggingface.co/models/{model}"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "Accept": "image/png",
+    }
+
+    with httpx.Client(timeout=120.0) as client:
+        for attempt in range(max_retries):
+            resp = client.post(url, json={"inputs": prompt}, headers=headers)
+
+            if resp.status_code == 503:
+                try:
+                    wait = resp.json().get("estimated_time", 20)
+                except Exception:
+                    wait = 20
+                print(f"      HF model loading, waiting {int(wait)+5}s (attempt {attempt+1})…")
+                time.sleep(int(wait) + 5)
+                continue
+
+            if resp.status_code == 429:
+                print(f"      HF rate limited, waiting 20s (attempt {attempt+1})…")
+                time.sleep(20)
+                continue
+
+            resp.raise_for_status()
+            return resp.content
+
+        raise RuntimeError(f"HuggingFace image generation failed after {max_retries} retries")
+
+
 def save_scene_image(
     index: int,
     prompt: str,
@@ -121,24 +155,37 @@ def save_scene_image(
     height: int = 768,
     negative: str = DEFAULT_NEGATIVE,
 ) -> tuple[str, str]:
-    """Generate and save one image. Returns (status, detail)."""
-    api_key = os.environ.get("DEAPI_TOKEN", "").strip()
-    if not api_key:
-        return "fail", "DEAPI_TOKEN not set"
+    """Generate and save one image. Returns (status, detail).
 
-    model = os.environ.get("DEAPI_MODEL", "Flux_2_Klein_4B_BF16")
+    Uses DeAPI if DEAPI_TOKEN is set, otherwise falls back to HuggingFace.
+    """
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    try:
-        img_bytes = _deapi_generate(
-            prompt,
-            api_key=api_key,
-            width=width,
-            height=height,
-            model=model,
-        )
-        out_path.write_bytes(img_bytes)
-        return "ok", "deapi"
-    except Exception as e:
-        return "fail", str(e)
+    deapi_key = os.environ.get("DEAPI_TOKEN", "").strip()
+    hf_key = os.environ.get("HF_TOKEN", "").strip()
+
+    if deapi_key:
+        model = os.environ.get("DEAPI_MODEL", "Flux_2_Klein_4B_BF16")
+        try:
+            img_bytes = _deapi_generate(
+                prompt,
+                api_key=deapi_key,
+                width=width,
+                height=height,
+                model=model,
+            )
+            out_path.write_bytes(img_bytes)
+            return "ok", "deapi"
+        except Exception as e:
+            return "fail", str(e)
+
+    if hf_key:
+        try:
+            img_bytes = _hf_generate(prompt, api_key=hf_key)
+            out_path.write_bytes(img_bytes)
+            return "ok", "huggingface"
+        except Exception as e:
+            return "fail", str(e)
+
+    return "fail", "No image API key set — add DEAPI_TOKEN or HF_TOKEN to .env"
