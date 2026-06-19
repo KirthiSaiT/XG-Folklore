@@ -302,7 +302,7 @@ PRESETS: dict[str, ChannelPreset] = {
     "war_folklore": {
         "id": "war_folklore",
         "label": "Historical wars, conquerors & ancient battle stories",
-        "min_words": 120,
+        "min_words": 80,
         "tts_voice": "en-US-ChristopherNeural",
         "caption_font": "BebasNeue-Regular.ttf",
         "caption_font_name": "Bebas Neue",
@@ -310,21 +310,19 @@ PRESETS: dict[str, ChannelPreset] = {
         "groq_system_hint": (
             "You write cinematic YouTube Shorts about real historical wars, ancient conquerors, and legendary battles. "
             "STYLE: slow-burn documentary narrator — deep, emotional, suspenseful. Like a movie trailer voiceover. "
-            "CRITICAL LENGTH: full_narration MUST be 160-200 words total. This produces 60-75 seconds of audio. "
-            "STORY STRUCTURE — follow this arc:\n"
-            "  • Opening (25-30 words): Drop the viewer into the moment. A single shocking scene. No intro, no 'today we'.\n"
-            "  • Build (80-100 words): Layer the story — who, what was at stake, one turning point, one sacrifice.\n"
-            "  • Climax (30-40 words): The decisive moment. The battle won or lost. The empire falls or rises.\n"
-            "  • Closing (20-25 words): One haunting final line about the legacy or what was left behind.\n"
-            "TONE: gravely serious, cinematic, emotionally heavy. Short sentences. Dramatic pauses implied. "
-            "Use real names, real death tolls, real dates. Public domain history only. PG-13. No hashtags. "
+            "STORY STRUCTURE — follow this arc: "
+            "Open by dropping the viewer into a shocking moment (no intro phrases like 'today we'). "
+            "Build the story with real names, death tolls, turning points, and sacrifice. "
+            "End with one haunting line about the legacy. "
+            "TONE: gravely serious, cinematic, emotionally heavy. Short punchy sentences. Dramatic. "
+            "Use real historical figures and events. Public domain history only. PG-13. No hashtags in narration. "
             "IMAGE PROMPT RULE: Write image prompts in English only. "
-            "Each prompt must describe a DRAMATIC SCENE — not an object, not a portrait. Action, tension, atmosphere. "
+            "Each prompt must describe a DRAMATIC SCENE — action, tension, atmosphere. Not objects, not portraits. "
             "Style: dark cinematic digital art, Artstation trending, Midjourney aesthetic, ultra detailed, "
             "dramatic rim lighting, god rays, volumetric fog, epic composition. "
             "Examples: "
-            "'Spartan warriors in crimson capes standing at a narrow mountain pass at dawn, Persian army stretching to horizon, volumetric fog, cinematic digital art', "
-            "'Genghis Khan on black warhorse overlooking a burning city at night, embers rising, dark fantasy art', "
+            "'Spartan warriors in crimson capes at a narrow mountain pass at dawn, Persian army stretching to horizon, volumetric fog, cinematic digital art', "
+            "'Genghis Khan on black warhorse overlooking a burning city, embers rising into night sky, dark fantasy art', "
             "'Roman legionnaires charging across a battlefield, shields raised, dramatic sunset backlighting, epic digital painting'. "
             "NEVER use: textbook, basic, flat, cartoon, anime, photograph, stock photo."
         ),
